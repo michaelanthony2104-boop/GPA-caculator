@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator-By Michael Momoh</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #fff;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #38bdf8;
+        }
+
+        div {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #38bdf8;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            background: #0ea5e9;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #334155;
+            margin-bottom: 5px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        p {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>GPA Calculator</h1>
+
+    <!-- Add Course -->
+    <div>
+        <h3>Add Course</h3>
+
+        <label>Course Score:</label>
+        <input type="number" id="score" placeholder="Enter score">
+
+        <br><br>
+
+        <label>Course Unit:</label>
+        <input type="number" id="unit" placeholder="Enter unit">
+
+        <br><br>
+
+        <button id="addBtn">Add Course</button>
+    </div>
+
+    <!-- Course List -->
+    <div>
+        <h3>Courses Added</h3>
+        <ul id="courseList"></ul>
+    </div>
+
+    <!-- Result -->
+    <div>
+        <h3>Your GPA</h3>
+        <p id="gpa">0.00</p>
+
+        <h3>Class</h3>
+        <p id="class">-</p>
+    </div>
+
+    <!-- Predictor -->
+    <div>
+        <h3>What-If Predictor</h3>
+
+        <label>Expected Score:</label>
+        <input type="number" id="futureScore" placeholder="Enter expected score">
+
+        <br><br>
+
+        <label>Expected Unit:</label>
+        <input type="number" id="futureUnit" placeholder="Enter unit">
+
+        <br><br>
+
+        <button id="predictBtn">Predict GPA</button>
+
+        <h4>Predicted GPA:</h4>
+        <p id="predictedGpa">0.00</p>
+
+        <h4>Predicted Class:</h4>
+        <p id="predictedClass">-</p>
+    </div>
+
+<script>
+    const courses = [];
+
+    const scoreInput = document.getElementById('score');
+    const unitInput = document.getElementById('unit');
+    const addBtn = document.getElementById('addBtn');
+    const courseList = document.getElementById('courseList');
+    const gpaDisplay = document.getElementById('gpa');
+    const classDisplay = document.getElementById('class');
+
+    const futureScoreInput = document.getElementById('futureScore');
+    const futureUnitInput = document.getElementById('futureUnit');
+    const predictBtn = document.getElementById('predictBtn');
+    const predictedGpaDisplay = document.getElementById('predictedGpa');
+    const predictedClassDisplay = document.getElementById('predictedClass');
+
+    function getGradePoint(score) {
+        if (score >= 70) return 5;
+        if (score >= 60) return 4;
+        if (score >= 50) return 3;
+        if (score >= 45) return 2;
+        if (score >= 40) return 1;
+        return 0;
+    }
+
+    function getClass(gpa) {
+        if (gpa >= 4.5) return "First Class";
+        if (gpa >= 3.5) return "Second Class Upper (2.1)";
+        if (gpa >= 2.5) return "Second Class Lower (2.2)";
+        if (gpa >= 1.5) return "Third Class";
+        return "Fail";
+    }
+
+    function updateGPA() {
+        let totalPoints = 0;
+        let totalUnits = 0;
+
+        courses.forEach(course => {
+            const gp = getGradePoint(course.score);
+            totalPoints += gp * course.unit;
+            totalUnits += course.unit;
+        });
+
+        let gpa = 0;
+        if (totalUnits > 0) {
+            gpa = totalPoints / totalUnits;
+        }
+
+        gpaDisplay.textContent = gpa.toFixed(2);
+        classDisplay.textContent = getClass(gpa);
+
+        localStorage.setItem('courses', JSON.stringify(courses));
+    }
+
+    function renderCourses() {
+        courseList.innerHTML = '';
+
+        courses.forEach((course, index) => {
+            const li = document.createElement('li');
+
+            li.innerHTML = `
+                Score: ${course.score}, Unit: ${course.unit}
+                <button onclick="deleteCourse(${index})">❌</button>
+            `;
+
+            courseList.appendChild(li);
+        });
+
+        updateGPA();
+    }
+
+    function deleteCourse(index) {
+        courses.splice(index, 1);
+        renderCourses();
+    }
+
+    addBtn.addEventListener('click', () => {
+        const score = parseFloat(scoreInput.value);
+        const unit = parseFloat(unitInput.value);
+
+        if (
+            isNaN(score) ||
+            isNaN(unit) ||
+            score < 0 ||
+            score > 100 ||
+            unit <= 0
+        ) {
+            alert('Enter valid values');
+            return;
+        }
+
+        courses.push({ score, unit });
+
+        scoreInput.value = '';
+        unitInput.value = '';
+
+        renderCourses();
+    });
+
+    predictBtn.addEventListener('click', () => {
+        const futureScore = parseFloat(futureScoreInput.value);
+        const futureUnit = parseFloat(futureUnitInput.value);
+
+        if (
+            isNaN(futureScore) ||
+            isNaN(futureUnit) ||
+            futureScore < 0 ||
+            futureScore > 100 ||
+            futureUnit <= 0
+        ) {
+            alert('Enter valid future values');
+            return;
+        }
+
+        let totalPoints = 0;
+        let totalUnits = 0;
+
+        courses.forEach(course => {
+            const gp = getGradePoint(course.score);
+            totalPoints += gp * course.unit;
+            totalUnits += course.unit;
+        });
+
+        const futureGP = getGradePoint(futureScore);
+        totalPoints += futureGP * futureUnit;
+        totalUnits += futureUnit;
+
+        const predictedGpa = totalPoints / totalUnits;
+
+        predictedGpaDisplay.textContent = predictedGpa.toFixed(2);
+        predictedClassDisplay.textContent = getClass(predictedGpa);
+    });
+
+    window.onload = () => {
+        const saved = JSON.parse(localStorage.getItem('courses'));
+
+        if (saved) {
+            saved.forEach(c => courses.push(c));
+            renderCourses();
+        }
+    };
+</script>
+
+</body>
+  </html>
