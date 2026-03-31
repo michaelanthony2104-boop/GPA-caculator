@@ -66,7 +66,6 @@
             font-weight: bold;
         }
     </style>
-</head>
 
 <body>
 
@@ -271,9 +270,56 @@
             renderCourses();
         }
     };
+    function sendMessage() {
+    const input = document.getElementById('userInput');
+    const chatBox = document.getElementById('chatBox');
+
+    const userText = input.value.toLowerCase();
+
+    if (!userText) return;
+
+    chatBox.innerHTML += `<p><b>You:</b> ${userText}</p>`;
+
+    let reply = "I don't understand that yet 😅";
+
+    if (userText.includes("gpa")) {
+        reply = "Your GPA is " + gpaDisplay.textContent;
+    }
+
+    else if (userText.includes("first class")) {
+        reply = "You need at least 4.5 GPA for First Class.";
+    }
+
+    else if (userText.includes("2.1")) {
+        reply = "You need at least 3.5 GPA for Second Class Upper.";
+    }
+
+    else if (userText.includes("advice")) {
+        reply = "Focus on high unit courses and aim for 70+ scores.";
+    }
+
+    chatBox.innerHTML += `<p><b>Bot:</b> ${reply}</p>`;
+
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
 </script>
+<!-- Chatbot -->
+<div style="background:#1e293b; padding:15px; border-radius:10px;">
+    <h3>GPA Chatbot 🤖</h3>
+
+    <div id="chatBox" style="height:150px; overflow-y:auto; background:#0f172a; padding:10px; border-radius:5px;"></div>
+
+    <input type="text" id="userInput" placeholder="Ask something..." style="width:100%; margin-top:10px;">
+
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+</body>
+</html>
 <footer style="text-align:center; margin-top:20px; color:#94a3b8;">
     © 2026 Anthony Michael | GPA Predictor App
-    </footer>
+</footer>
 </body>
-  </html>
+            </html>
+            
